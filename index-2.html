@@ -1,0 +1,593 @@
+<!doctype html>
+<html lang="ko">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover" />
+  <title>월 매출 · 순수익 계산기</title>
+  <meta name="theme-color" content="#091018" />
+  <style>
+    :root{
+      --bg:#081019;
+      --panel:#101821;
+      --panel2:#131e29;
+      --line:#263746;
+      --line2:#365166;
+      --text:#f1f6fb;
+      --muted:#8b9aa8;
+      --purple:#6d86f5;
+      --purple2:#5069c9;
+      --cyan:#64dcc6;
+      --danger:#ff748f;
+      --shadow:0 0 0 1px rgba(90,125,170,.10), 0 22px 60px rgba(0,0,0,.35);
+    }
+    *{box-sizing:border-box}
+    html{background:var(--bg)}
+    body{
+      margin:0;
+      min-height:100vh;
+      color:var(--text);
+      background:
+        radial-gradient(900px 520px at 84% 10%, rgba(63,108,180,.13), transparent 62%),
+        radial-gradient(700px 480px at 12% 72%, rgba(40,140,150,.06), transparent 60%),
+        var(--bg);
+      font-family:Inter, Pretendard, -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Noto Sans KR", sans-serif;
+      letter-spacing:-.02em;
+    }
+    button,input{font:inherit}
+    button{cursor:pointer}
+    
+    
+    
+    
+    .nav span:first-child{color:#f3eff8}
+    .wrap{
+      max-width:1180px;
+      margin:0 auto;
+      padding:36px 22px 80px;
+    }
+    .hero{
+      margin-bottom:24px;
+    }
+    .title-line{
+      display:flex;
+      align-items:center;
+      gap:12px;
+      flex-wrap:wrap;
+      margin-bottom:8px;
+    }
+    h1{
+      margin:0;
+      font-size:clamp(25px,3.8vw,40px);
+      line-height:1.12;
+      letter-spacing:-.045em;
+    }
+    .pill{
+      padding:6px 11px;
+      border-radius:999px;
+      border:1px solid rgba(111,143,255,.72);
+      color:#b6c4ff;
+      font-size:10px;
+      font-weight:900;
+      letter-spacing:.12em;
+      box-shadow:inset 0 0 16px rgba(111,143,255,.07);
+      white-space:nowrap;
+    }
+    .subtitle{
+      margin:0;
+      max-width:700px;
+      color:#8f8999;
+      font-size:13px;
+      line-height:1.75;
+    }
+    .layout{
+      display:grid;
+      grid-template-columns:minmax(0,1.45fr) minmax(330px,.8fr);
+      align-items:start;
+      gap:18px;
+    }
+    .left{display:grid;gap:14px}
+    .card{
+      background:linear-gradient(180deg,rgba(17,14,23,.96),rgba(11,9,16,.96));
+      border:1px solid var(--line);
+      border-radius:14px;
+      padding:18px;
+      box-shadow:0 12px 36px rgba(0,0,0,.15);
+    }
+    .card-title{
+      display:flex;
+      align-items:center;
+      gap:8px;
+      font-weight:900;
+      font-size:13px;
+      margin-bottom:4px;
+    }
+    .num{
+      width:21px;height:21px;
+      display:grid;place-items:center;
+      border-radius:50%;
+      font-size:10px;
+      font-weight:900;
+      background:#f2edf8;
+      color:#16121c;
+    }
+    .hint{
+      color:#756f80;
+      font-size:10.5px;
+      margin:0 0 16px;
+      line-height:1.55;
+    }
+    .service-head,.service-row{
+      display:grid;
+      grid-template-columns:minmax(130px,1.25fr) minmax(95px,.72fr) minmax(80px,.52fr) 32px;
+      gap:8px;
+      align-items:end;
+    }
+    .service-head{
+      margin:0 0 6px;
+      color:#766e82;
+      font-size:9.5px;
+      font-weight:800;
+    }
+    .service-row{margin-bottom:8px}
+    .input-wrap{position:relative}
+    input{
+      width:100%;
+      height:38px;
+      background:#08070b;
+      border:1px solid #22303c;
+      border-radius:7px;
+      color:#f7f3fb;
+      outline:none;
+      padding:0 11px;
+      font-size:12px;
+      transition:.15s ease;
+    }
+    input::placeholder{color:#4d4657}
+    input:focus{
+      border-color:rgba(111,143,255,.72);
+      box-shadow:0 0 0 2px rgba(111,143,255,.09), 0 0 18px rgba(111,143,255,.07);
+    }
+    .remove{
+      width:32px;height:38px;
+      border:1px solid #22303c;
+      background:#08070b;
+      color:#73808b;
+      border-radius:7px;
+      font-size:15px;
+    }
+    .remove:hover{color:#fff;border-color:#3f586d}
+    .add{
+      width:100%;
+      height:37px;
+      margin-top:2px;
+      border:1px dashed rgba(111,143,255,.75);
+      border-radius:7px;
+      background:rgba(74,108,168,.08);
+      color:#b2c0fb;
+      font-size:11px;
+      font-weight:900;
+    }
+    .add:hover{background:rgba(74,108,168,.15)}
+    .cost-grid{
+      display:grid;
+      grid-template-columns:1fr 1fr;
+      gap:12px;
+    }
+    .field label{
+      display:block;
+      font-size:10px;
+      color:#bab2c5;
+      font-weight:800;
+      margin:0 0 6px;
+    }
+    .field small{
+      display:block;
+      font-size:8.5px;
+      color:#625c6d;
+      margin-top:5px;
+      line-height:1.5;
+    }
+    .goal-card{
+      border-color:#2a3b49;
+    }
+    .goal-inline{
+      display:grid;
+      grid-template-columns:minmax(0,1fr) auto;
+      gap:8px;
+      align-items:end;
+    }
+    .goal-btn{
+      height:38px;
+      border:1px solid #36516e;
+      border-radius:7px;
+      padding:0 16px;
+      color:#cfdbff;
+      background:linear-gradient(180deg,#1a2a3a,#111c28);
+      font-size:10px;
+      font-weight:900;
+    }
+    .result{
+      position:sticky;
+      top:78px;
+      border:1px solid rgba(111,143,255,.78);
+      border-radius:13px;
+      background:
+        radial-gradient(500px 260px at 50% 100%,rgba(65,230,220,.035),transparent 68%),
+        linear-gradient(180deg,#0d151d,#091018);
+      padding:20px 19px;
+      box-shadow:
+        0 0 0 1px rgba(111,143,255,.05),
+        0 0 36px rgba(73,112,170,.07),
+        0 28px 70px rgba(0,0,0,.38);
+    }
+    .result-title{
+      font-size:13px;
+      font-weight:950;
+      margin-bottom:16px;
+    }
+    .section-label{
+      color:#a69dae;
+      font-size:9.5px;
+      font-weight:900;
+      margin:0 0 8px;
+    }
+    .stat-list{display:grid;gap:0}
+    .stat{
+      min-height:34px;
+      display:flex;
+      align-items:center;
+      justify-content:space-between;
+      gap:14px;
+      border-bottom:1px solid rgba(255,255,255,.045);
+      font-size:10.5px;
+    }
+    .stat span{color:#7e7689}
+    .stat b{font-size:10.5px;color:#dcd5e5}
+    .profit{
+      margin:21px 0 15px;
+      text-align:center;
+      padding-top:4px;
+    }
+    .profit small{
+      display:block;
+      color:#92a0ad;
+      font-size:9px;
+      font-weight:900;
+      margin-bottom:7px;
+    }
+    .profit-value{
+      font-size:31px;
+      font-weight:950;
+      color:var(--cyan);
+      text-shadow:0 0 20px rgba(64,242,231,.28);
+      letter-spacing:-.05em;
+    }
+    .margin{
+      margin-top:2px;
+      color:#7d8a96;
+      font-size:9px;
+    }
+    .mini{
+      margin-top:13px;
+      background:#0c141b;
+      border:1px solid #263845;
+      border-radius:9px;
+      padding:11px 12px;
+    }
+    .mini-top{
+      display:flex;
+      align-items:center;
+      justify-content:space-between;
+      gap:10px;
+      font-size:9.5px;
+      color:#8e9ca9;
+    }
+    .mini-top strong{color:#b9c8d8;font-size:10px}
+    .mini-note{
+      margin-top:7px;
+      color:#657482;
+      font-size:8px;
+      line-height:1.6;
+    }
+    .goal-result{
+      margin-top:13px;
+      border-top:1px solid rgba(255,255,255,.05);
+      padding-top:13px;
+      display:none;
+    }
+    .goal-result.show{display:block}
+    .goal-result .big{
+      color:#dce6ff;
+      font-size:16px;
+      font-weight:950;
+      margin:4px 0;
+    }
+    
+    .footer-note{
+      margin-top:18px;
+      font-size:8px;
+      text-align:center;
+      color:#4d4655;
+      line-height:1.6;
+    }
+    @media (max-width:840px){
+      .wrap{padding-top:26px}
+      .layout{grid-template-columns:1fr}
+      .result{position:static}
+      
+    }
+    @media (max-width:560px){
+      
+      
+      .wrap{padding:28px 14px 56px}
+      .card{padding:15px}
+      .service-head{display:none}
+      .service-row{
+        grid-template-columns:1fr 1fr 32px;
+        gap:7px;
+        padding-bottom:9px;
+        border-bottom:1px solid rgba(255,255,255,.04);
+      }
+      .service-row .service-name{grid-column:1 / -1}
+      .cost-grid{grid-template-columns:1fr}
+      .goal-inline{grid-template-columns:1fr}
+      .goal-btn{width:100%}
+    }
+  </style>
+</head>
+<body>
+<main class="wrap">
+    <section class="hero">
+      <div class="title-line">
+        <h1>월 매출 · 순수익 계산기</h1>
+        <span class="pill">MONTHLY PROFIT</span>
+      </div>
+      <p class="subtitle">시술 메뉴를 입력하고, 고정비와 변동비를 넣으면 예상 월 매출과 순수익을 실시간으로 계산합니다.</p>
+    </section>
+
+    <div class="layout">
+      <div class="left">
+        <section class="card">
+          <div class="card-title"><span class="num">1</span> 시술 메뉴 &amp; 매출</div>
+          <p class="hint">우선 시술 메뉴를 추가하고, 평균 단가와 한 달 예상 건수를 넣어주세요.</p>
+
+          <div class="service-head">
+            <span>시술명</span><span>단가 (원)</span><span>월 건수</span><span></span>
+          </div>
+          <div id="services"></div>
+          <button class="add" id="addService">＋ 시술 메뉴 추가</button>
+        </section>
+
+        <section class="card">
+          <div class="card-title"><span class="num">2</span> 월 비용</div>
+          <p class="hint">매달 나가는 비용을 입력하세요. 재료비는 매출 대비 비율(%)로 계산됩니다.</p>
+
+          <div class="cost-grid">
+            <div class="field">
+              <label for="rent">임대료 + 관리비</label>
+              <input id="rent" inputmode="numeric" value="0" />
+              <small>월세, 관리비 등 고정 지출</small>
+            </div>
+            <div class="field">
+              <label for="labor">인건비</label>
+              <input id="labor" inputmode="numeric" value="0" />
+              <small>직원 급여 및 고정 인건비</small>
+            </div>
+            <div class="field">
+              <label for="ads">광고 · 마케팅비</label>
+              <input id="ads" inputmode="numeric" value="0" />
+              <small>광고, 콘텐츠, 프로모션 비용</small>
+            </div>
+            <div class="field">
+              <label for="etc">기타 고정비</label>
+              <input id="etc" inputmode="numeric" value="0" />
+              <small>소모품, 프로그램, 기타 월 비용</small>
+            </div>
+            <div class="field">
+              <label for="materialRate">재료비 비율 (%)</label>
+              <input id="materialRate" inputmode="decimal" value="0" />
+              <small>매출의 몇 %가 재료비로 나가는지 입력</small>
+            </div>
+          </div>
+        </section>
+
+        <section class="card goal-card">
+          <div class="card-title"><span class="num">3</span> 목표 순수익 계산</div>
+          <p class="hint">원하는 월 순수익을 입력하면 현재 조건에서 필요한 추가 매출을 계산합니다.</p>
+          <div class="goal-inline">
+            <div class="field">
+              <label for="goal">목표 순수익 (원)</label>
+              <input id="goal" inputmode="numeric" placeholder="예: 10000000" />
+            </div>
+            <button class="goal-btn" id="goalButton">목표 계산</button>
+          </div>
+        </section>
+      </div>
+
+      <aside class="result">
+        <div class="result-title">▣ 이번 달 예상 성적표</div>
+
+        <div class="section-label">월 매출</div>
+        <div class="stat-list">
+          <div class="stat"><span>총 시술 건수</span><b id="totalCount">0건</b></div>
+          <div class="stat"><span>재료비</span><b id="materialCost">0원</b></div>
+          <div class="stat"><span>고정비 합계</span><b id="fixedCost">0원</b></div>
+          <div class="stat"><span>총 비용</span><b id="totalCost">0원</b></div>
+        </div>
+
+        <div class="profit">
+          <small>월 순수익</small>
+          <div class="profit-value" id="netProfit">0원</div>
+          <div class="margin">마진율 <b id="margin">-</b></div>
+        </div>
+
+        <div class="mini">
+          <div class="mini-top">
+            <span>손익분기 매출 (BEP)</span>
+            <strong id="bep">0원</strong>
+          </div>
+          <div class="mini-note">현재 고정비와 재료비율을 기준으로 계산한 최소 손익분기 매출입니다.</div>
+        </div>
+
+        <div class="mini">
+          <div class="mini-top">
+            <span>예상 월 매출</span>
+            <strong id="revenue">0원</strong>
+          </div>
+        </div>
+
+        <div class="goal-result" id="goalResult">
+          <div class="section-label">목표 순수익까지</div>
+          <div class="big" id="extraRevenue">추가 매출 0원</div>
+          <div class="mini-note" id="extraProcedures"></div>
+        </div>
+
+        <div class="footer-note">입력값은 이 브라우저에 자동 저장됩니다.</div>
+      </aside>
+    </div>
+  </main>
+
+  <script>
+    const $ = s => document.querySelector(s);
+    const won = n => Math.round(n || 0).toLocaleString("ko-KR") + "원";
+    const num = v => {
+      const n = Number(String(v ?? "").replace(/[^\d.-]/g,""));
+      return Number.isFinite(n) ? n : 0;
+    };
+
+    let services = [
+      {name:"시술명", price:80000, count:30}
+    ];
+
+    const fields = ["rent","labor","ads","etc","materialRate","goal"];
+
+    function escapeHtml(s){
+      return String(s).replace(/[&<>"']/g, m => ({
+        "&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;","'":"&#039;"
+      }[m]));
+    }
+
+    function renderServices(){
+      const box = $("#services");
+      box.innerHTML = services.map((s,i)=>`
+        <div class="service-row" data-i="${i}">
+          <input class="service-name" data-k="name" value="${escapeHtml(s.name)}" placeholder="시술명" />
+          <input data-k="price" inputmode="numeric" value="${s.price || ""}" placeholder="단가" />
+          <input data-k="count" inputmode="numeric" value="${s.count || ""}" placeholder="건수" />
+          <button class="remove" aria-label="삭제" title="삭제">×</button>
+        </div>
+      `).join("");
+
+      box.querySelectorAll(".service-row").forEach(row=>{
+        const i = Number(row.dataset.i);
+        row.querySelectorAll("input").forEach(inp=>{
+          inp.addEventListener("input",()=>{
+            const k = inp.dataset.k;
+            services[i][k] = k === "name" ? inp.value : num(inp.value);
+            save();
+            calculate();
+          });
+        });
+        row.querySelector(".remove").addEventListener("click",()=>{
+          if(services.length === 1){
+            services[0] = {name:"",price:0,count:0};
+          }else{
+            services.splice(i,1);
+          }
+          renderServices();
+          save();
+          calculate();
+        });
+      });
+    }
+
+    function calculate(){
+      const revenue = services.reduce((a,s)=>a + num(s.price)*num(s.count),0);
+      const count = services.reduce((a,s)=>a + num(s.count),0);
+
+      const rent = num($("#rent").value);
+      const labor = num($("#labor").value);
+      const ads = num($("#ads").value);
+      const etc = num($("#etc").value);
+      let materialRate = num($("#materialRate").value);
+      materialRate = Math.min(Math.max(materialRate,0),99.9);
+
+      const material = revenue * materialRate / 100;
+      const fixed = rent + labor + ads + etc;
+      const total = fixed + material;
+      const profit = revenue - total;
+      const margin = revenue > 0 ? profit / revenue * 100 : null;
+      const bep = fixed / Math.max(1 - materialRate/100, .001);
+
+      $("#totalCount").textContent = Math.round(count).toLocaleString("ko-KR")+"건";
+      $("#materialCost").textContent = won(material);
+      $("#fixedCost").textContent = won(fixed);
+      $("#totalCost").textContent = won(total);
+      $("#netProfit").textContent = won(profit);
+      $("#margin").textContent = margin === null ? "-" : margin.toFixed(1)+"%";
+      $("#bep").textContent = won(bep);
+      $("#revenue").textContent = won(revenue);
+
+      $("#netProfit").style.color = profit >= 0 ? "var(--cyan)" : "var(--danger)";
+
+      const goal = num($("#goal").value);
+      if(goal > 0){
+        const requiredRevenue = (goal + fixed) / Math.max(1 - materialRate/100, .001);
+        const extra = Math.max(requiredRevenue - revenue,0);
+        const avgPrice = count > 0 ? revenue/count : 0;
+        $("#goalResult").classList.add("show");
+        $("#extraRevenue").textContent = extra > 0 ? "추가 매출 "+won(extra) : "현재 조건에서 목표 달성";
+        $("#extraProcedures").textContent = extra > 0 && avgPrice > 0
+          ? `현재 평균 단가 기준 약 ${Math.ceil(extra/avgPrice).toLocaleString("ko-KR")}건의 추가 시술이 필요합니다.`
+          : (extra <= 0 ? "현재 예상 순수익이 입력한 목표 이상입니다." : "시술 단가와 건수를 입력하면 추가 건수도 계산됩니다.");
+      }else{
+        $("#goalResult").classList.remove("show");
+      }
+    }
+
+    function save(){
+      const data = {
+        services,
+        fields:Object.fromEntries(fields.map(id=>[id,$("#"+id)?.value ?? ""]))
+      };
+      localStorage.setItem("profitCalculatorData", JSON.stringify(data));
+    }
+
+    function load(){
+      try{
+        const saved = JSON.parse(localStorage.getItem("profitCalculatorData") || "null");
+        if(saved?.services?.length) services = saved.services;
+        if(saved?.fields){
+          fields.forEach(id=>{
+            const el = $("#"+id);
+            if(el && saved.fields[id] !== undefined) el.value = saved.fields[id];
+          });
+        }
+      }catch(e){}
+    }
+
+    $("#addService").addEventListener("click",()=>{
+      services.push({name:"",price:0,count:0});
+      renderServices();
+      save();
+      setTimeout(()=>{
+        const rows = document.querySelectorAll(".service-row");
+        rows[rows.length-1]?.querySelector(".service-name")?.focus();
+      },0);
+    });
+
+    fields.forEach(id=>{
+      $("#"+id)?.addEventListener("input",()=>{save();calculate();});
+    });
+
+    $("#goalButton").addEventListener("click",()=>{
+      calculate();
+      $("#goalResult").classList.toggle("show", num($("#goal").value)>0);
+    });
+
+    load();
+    renderServices();
+    calculate();
+  </script>
+</body>
+</html>
