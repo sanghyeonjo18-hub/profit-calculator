@@ -1,0 +1,1044 @@
+<!doctype html>
+<html lang="ko">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover" />
+  <title>월 매출 · 순수익 계산기</title>
+  <meta name="theme-color" content="#081019" />
+  <style>
+    :root{
+      --bg:#081019;
+      --panel:#101821;
+      --panel2:#131e29;
+      --line:#263746;
+      --line2:#365166;
+      --text:#f1f6fb;
+      --muted:#8b9aa8;
+      --accent:#6d86f5;
+      --accent2:#5069c9;
+      --mint:#64dcc6;
+      --danger:#ff748f;
+    }
+    *{box-sizing:border-box}
+    html{background:var(--bg)}
+    body{
+      margin:0;
+      min-height:100vh;
+      color:var(--text);
+      background:
+        radial-gradient(900px 520px at 84% 10%, rgba(63,108,180,.13), transparent 62%),
+        radial-gradient(700px 480px at 12% 72%, rgba(40,140,150,.06), transparent 60%),
+        var(--bg);
+      font-family:Inter, Pretendard, -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Noto Sans KR", sans-serif;
+      letter-spacing:-.02em;
+    }
+    button,input{font:inherit}
+    button{cursor:pointer}
+    .wrap{
+      max-width:1180px;
+      margin:0 auto;
+      padding:36px 22px 80px;
+    }
+    .hero{margin-bottom:24px}
+    .title-line{
+      display:flex;
+      align-items:center;
+      gap:12px;
+      flex-wrap:wrap;
+      margin-bottom:8px;
+    }
+    h1{
+      margin:0;
+      font-size:clamp(25px,3.8vw,40px);
+      line-height:1.12;
+      letter-spacing:-.045em;
+    }
+    .pill{
+      padding:6px 11px;
+      border-radius:999px;
+      border:1px solid rgba(109,134,245,.68);
+      color:#b6c4ff;
+      font-size:10px;
+      font-weight:900;
+      letter-spacing:.12em;
+      box-shadow:inset 0 0 16px rgba(109,134,245,.07);
+      white-space:nowrap;
+    }
+    .subtitle{
+      margin:0;
+      max-width:760px;
+      color:#8c99a5;
+      font-size:13px;
+      line-height:1.75;
+    }
+    .layout{
+      display:grid;
+      grid-template-columns:minmax(0,1.45fr) minmax(330px,.8fr);
+      align-items:start;
+      gap:18px;
+    }
+    .left{display:grid;gap:14px}
+    .card{
+      background:linear-gradient(180deg,rgba(16,24,33,.97),rgba(10,16,23,.97));
+      border:1px solid var(--line);
+      border-radius:14px;
+      padding:18px;
+      box-shadow:0 12px 36px rgba(0,0,0,.15);
+    }
+    .card-title{
+      display:flex;
+      align-items:center;
+      gap:8px;
+      font-weight:900;
+      font-size:13px;
+      margin-bottom:4px;
+    }
+    .num{
+      width:21px;height:21px;
+      display:grid;place-items:center;
+      border-radius:50%;
+      font-size:10px;
+      font-weight:900;
+      background:#e9f1f8;
+      color:#12202b;
+    }
+    .hint{
+      color:#73818d;
+      font-size:10.5px;
+      margin:0 0 16px;
+      line-height:1.55;
+    }
+    .service-head,.service-row{
+      display:grid;
+      grid-template-columns:minmax(130px,1.25fr) minmax(95px,.72fr) minmax(80px,.52fr) 32px;
+      gap:8px;
+      align-items:end;
+    }
+    .service-head{
+      margin:0 0 6px;
+      color:#778693;
+      font-size:9.5px;
+      font-weight:800;
+    }
+    .service-row{margin-bottom:8px}
+    input{
+      width:100%;
+      height:38px;
+      background:#080e14;
+      border:1px solid #22303c;
+      border-radius:7px;
+      color:#f3f7fb;
+      outline:none;
+      padding:0 11px;
+      font-size:12px;
+      transition:.15s ease;
+    }
+    input::placeholder{color:#4c5a65}
+    input:focus{
+      border-color:rgba(109,134,245,.72);
+      box-shadow:0 0 0 2px rgba(109,134,245,.09),0 0 18px rgba(109,134,245,.06);
+    }
+    .remove{
+      width:32px;height:38px;
+      border:1px solid #22303c;
+      background:#080e14;
+      color:#73808b;
+      border-radius:7px;
+      font-size:15px;
+    }
+    .remove:hover{color:#fff;border-color:#3f586d}
+    .add{
+      width:100%;
+      height:37px;
+      margin-top:2px;
+      border:1px dashed rgba(109,134,245,.70);
+      border-radius:7px;
+      background:rgba(74,108,168,.08);
+      color:#b2c0fb;
+      font-size:11px;
+      font-weight:900;
+    }
+    .add:hover{background:rgba(74,108,168,.15)}
+    .cost-grid{
+      display:grid;
+      grid-template-columns:1fr 1fr;
+      gap:12px;
+    }
+    .field label{
+      display:block;
+      font-size:10px;
+      color:#bbc6d0;
+      font-weight:800;
+      margin:0 0 6px;
+    }
+    .field small{
+      display:block;
+      font-size:8.5px;
+      color:#667581;
+      margin-top:5px;
+      line-height:1.5;
+    }
+    .goal-card{border-color:#2a3b49}
+    .goal-inline{
+      display:grid;
+      grid-template-columns:minmax(0,1fr) auto;
+      gap:8px;
+      align-items:end;
+    }
+    .primary-btn,.secondary-btn,.danger-btn{
+      min-height:38px;
+      border-radius:7px;
+      padding:0 14px;
+      font-size:10px;
+      font-weight:900;
+      transition:.15s ease;
+    }
+    .primary-btn{
+      border:1px solid #36516e;
+      color:#cfdbff;
+      background:linear-gradient(180deg,#1a2a3a,#111c28);
+    }
+    .primary-btn:hover{border-color:#5575a0}
+    .secondary-btn{
+      border:1px solid #2d4353;
+      color:#c4d0d9;
+      background:#0d171f;
+    }
+    .secondary-btn:hover{border-color:#466173}
+    .danger-btn{
+      border:1px solid rgba(255,116,143,.30);
+      color:#ff9aad;
+      background:rgba(110,32,50,.12);
+    }
+    .save-row{
+      display:grid;
+      grid-template-columns:minmax(0,1fr) auto;
+      gap:8px;
+      align-items:end;
+    }
+    .toolbar{
+      display:grid;
+      grid-template-columns:repeat(3,minmax(0,1fr));
+      gap:8px;
+      margin-top:12px;
+    }
+    .preset-list{
+      display:grid;
+      gap:8px;
+      margin-top:14px;
+    }
+    .preset-empty{
+      border:1px dashed #2b3c49;
+      border-radius:8px;
+      color:#6d7b86;
+      font-size:10px;
+      text-align:center;
+      padding:13px;
+    }
+    .preset-item{
+      display:flex;
+      align-items:center;
+      justify-content:space-between;
+      gap:10px;
+      padding:10px 11px;
+      background:#0b141c;
+      border:1px solid #263744;
+      border-radius:9px;
+    }
+    .preset-meta{min-width:0}
+    .preset-name{
+      font-size:11px;
+      color:#e4edf4;
+      font-weight:850;
+      overflow:hidden;
+      text-overflow:ellipsis;
+      white-space:nowrap;
+    }
+    .preset-date{
+      margin-top:3px;
+      font-size:8.5px;
+      color:#657480;
+    }
+    .preset-actions{
+      display:flex;
+      gap:6px;
+      flex-shrink:0;
+    }
+    .preset-actions button{
+      height:30px;
+      padding:0 10px;
+      border-radius:6px;
+      font-size:9px;
+      font-weight:850;
+    }
+    .file-input{display:none}
+    .result{
+      position:sticky;
+      top:18px;
+      border:1px solid rgba(109,134,245,.76);
+      border-radius:13px;
+      background:
+        radial-gradient(500px 260px at 50% 100%,rgba(100,220,198,.035),transparent 68%),
+        linear-gradient(180deg,#0d151d,#091018);
+      padding:20px 19px;
+      box-shadow:0 0 0 1px rgba(109,134,245,.05),0 0 36px rgba(73,112,170,.07),0 28px 70px rgba(0,0,0,.38);
+    }
+    .result-title{
+      font-size:13px;
+      font-weight:950;
+      margin-bottom:16px;
+    }
+    .section-label{
+      color:#a6b1ba;
+      font-size:9.5px;
+      font-weight:900;
+      margin:0 0 8px;
+    }
+    .stat-list{display:grid;gap:0}
+    .stat{
+      min-height:34px;
+      display:flex;
+      align-items:center;
+      justify-content:space-between;
+      gap:14px;
+      border-bottom:1px solid rgba(255,255,255,.045);
+      font-size:10.5px;
+    }
+    .stat span{color:#7f8d98}
+    .stat b{font-size:10.5px;color:#dce5ec}
+    .profit{
+      margin:21px 0 15px;
+      text-align:center;
+      padding-top:4px;
+    }
+    .profit small{
+      display:block;
+      color:#92a0ad;
+      font-size:9px;
+      font-weight:900;
+      margin-bottom:7px;
+    }
+    .profit-value{
+      font-size:31px;
+      font-weight:950;
+      color:var(--mint);
+      text-shadow:0 0 20px rgba(100,220,198,.23);
+      letter-spacing:-.05em;
+    }
+    .margin{
+      margin-top:2px;
+      color:#7d8a96;
+      font-size:9px;
+    }
+    .mini{
+      margin-top:13px;
+      background:#0c141b;
+      border:1px solid #263845;
+      border-radius:9px;
+      padding:11px 12px;
+    }
+    .mini-top{
+      display:flex;
+      align-items:center;
+      justify-content:space-between;
+      gap:10px;
+      font-size:9.5px;
+      color:#8e9ca9;
+    }
+    .mini-top strong{color:#b9c8d8;font-size:10px}
+    .mini-note{
+      margin-top:7px;
+      color:#657482;
+      font-size:8px;
+      line-height:1.6;
+    }
+    .goal-result{
+      margin-top:13px;
+      border-top:1px solid rgba(255,255,255,.05);
+      padding-top:13px;
+      display:none;
+    }
+    .goal-result.show{display:block}
+    .goal-result .big{
+      color:#dce6ff;
+      font-size:16px;
+      font-weight:950;
+      margin:4px 0;
+    }
+    .result-actions{
+      display:grid;
+      grid-template-columns:1fr 1fr;
+      gap:8px;
+      margin-top:14px;
+    }
+    .footer-note{
+      margin-top:14px;
+      font-size:8px;
+      text-align:center;
+      color:#5a6873;
+      line-height:1.6;
+    }
+    .toast{
+      position:fixed;
+      left:50%;
+      bottom:24px;
+      transform:translate(-50%,18px);
+      opacity:0;
+      pointer-events:none;
+      z-index:100;
+      background:#13202a;
+      border:1px solid #365064;
+      color:#e1e9ef;
+      border-radius:9px;
+      padding:10px 13px;
+      font-size:10px;
+      box-shadow:0 12px 35px rgba(0,0,0,.35);
+      transition:.18s ease;
+      max-width:min(90vw,420px);
+      text-align:center;
+    }
+    .toast.show{opacity:1;transform:translate(-50%,0)}
+    #printReport{display:none}
+
+    @media (max-width:840px){
+      .wrap{padding-top:26px}
+      .layout{grid-template-columns:1fr}
+      .result{position:static}
+    }
+    @media (max-width:560px){
+      .wrap{padding:28px 14px 56px}
+      .card{padding:15px}
+      .service-head{display:none}
+      .service-row{
+        grid-template-columns:1fr 1fr 32px;
+        gap:7px;
+        padding-bottom:9px;
+        border-bottom:1px solid rgba(255,255,255,.04);
+      }
+      .service-row .service-name{grid-column:1 / -1}
+      .cost-grid{grid-template-columns:1fr}
+      .goal-inline,.save-row{grid-template-columns:1fr}
+      .primary-btn{width:100%}
+      .toolbar{grid-template-columns:1fr}
+      .preset-item{align-items:flex-start;flex-direction:column}
+      .preset-actions{width:100%}
+      .preset-actions button{flex:1}
+      .result-actions{grid-template-columns:1fr}
+    }
+
+    @media print{
+      @page{size:A4;margin:14mm}
+      html,body{background:#fff !important;color:#111 !important}
+      body{font-family:"Noto Sans KR","Malgun Gothic",Arial,sans-serif}
+      .wrap,.toast{display:none !important}
+      #printReport{
+        display:block !important;
+        color:#111;
+        background:#fff;
+      }
+      .print-head{
+        display:flex;
+        justify-content:space-between;
+        align-items:flex-end;
+        gap:20px;
+        padding-bottom:12px;
+        border-bottom:2px solid #1f3b4d;
+      }
+      .print-title{font-size:22px;font-weight:800;margin:0}
+      .print-date{font-size:10px;color:#555}
+      .print-section{margin-top:18px;break-inside:avoid}
+      .print-section h2{font-size:13px;margin:0 0 8px;color:#1f3b4d}
+      .print-table{width:100%;border-collapse:collapse;font-size:10px}
+      .print-table th,.print-table td{border:1px solid #d9e0e5;padding:7px 8px;text-align:right}
+      .print-table th{background:#f2f6f8;font-weight:700}
+      .print-table th:first-child,.print-table td:first-child{text-align:left}
+      .print-summary{
+        display:grid;
+        grid-template-columns:1fr 1fr;
+        gap:8px;
+      }
+      .print-box{
+        border:1px solid #d7e0e5;
+        border-radius:6px;
+        padding:10px 11px;
+      }
+      .print-box span{display:block;font-size:9px;color:#69757d;margin-bottom:3px}
+      .print-box strong{font-size:14px}
+      .print-profit{border-color:#8bcfc1}
+      .print-profit strong{color:#167963}
+      .print-foot{margin-top:18px;font-size:8px;color:#777}
+    }
+  </style>
+</head>
+<body>
+  <main class="wrap">
+    <section class="hero">
+      <div class="title-line">
+        <h1>월 매출 · 순수익 계산기</h1>
+        <span class="pill">MONTHLY PROFIT</span>
+      </div>
+      <p class="subtitle">시술 메뉴와 월 비용을 입력하면 예상 매출, 비용, 순수익과 손익분기점을 계산합니다.</p>
+    </section>
+
+    <div class="layout">
+      <div class="left">
+        <section class="card">
+          <div class="card-title"><span class="num">1</span> 시술 메뉴 &amp; 매출</div>
+          <p class="hint">시술 메뉴를 추가하고 평균 단가와 한 달 예상 건수를 입력하세요.</p>
+          <div class="service-head">
+            <span>시술명</span><span>단가 (원)</span><span>월 건수</span><span></span>
+          </div>
+          <div id="services"></div>
+          <button class="add" id="addService">＋ 시술 메뉴 추가</button>
+        </section>
+
+        <section class="card">
+          <div class="card-title"><span class="num">2</span> 월 비용</div>
+          <p class="hint">매달 나가는 비용을 입력하세요. 재료비는 매출 대비 비율(%)로 계산됩니다.</p>
+          <div class="cost-grid">
+            <div class="field">
+              <label for="rent">임대료 + 관리비</label>
+              <input id="rent" inputmode="numeric" value="0" />
+              <small>월세, 관리비 등 고정 지출</small>
+            </div>
+            <div class="field">
+              <label for="labor">인건비</label>
+              <input id="labor" inputmode="numeric" value="0" />
+              <small>직원 급여 및 고정 인건비</small>
+            </div>
+            <div class="field">
+              <label for="ads">광고 · 마케팅비</label>
+              <input id="ads" inputmode="numeric" value="0" />
+              <small>광고, 콘텐츠, 프로모션 비용</small>
+            </div>
+            <div class="field">
+              <label for="etc">기타 고정비</label>
+              <input id="etc" inputmode="numeric" value="0" />
+              <small>소모품, 프로그램, 기타 월 비용</small>
+            </div>
+            <div class="field">
+              <label for="materialRate">재료비 비율 (%)</label>
+              <input id="materialRate" inputmode="decimal" value="0" />
+              <small>매출의 몇 %가 재료비로 나가는지 입력</small>
+            </div>
+          </div>
+        </section>
+
+        <section class="card goal-card">
+          <div class="card-title"><span class="num">3</span> 목표 순수익 계산</div>
+          <p class="hint">원하는 월 순수익을 입력하면 현재 조건에서 필요한 추가 매출을 계산합니다.</p>
+          <div class="goal-inline">
+            <div class="field">
+              <label for="goal">목표 순수익 (원)</label>
+              <input id="goal" inputmode="numeric" placeholder="예: 10000000" />
+            </div>
+            <button class="primary-btn" id="goalButton">목표 계산</button>
+          </div>
+        </section>
+
+        <section class="card">
+          <div class="card-title"><span class="num">4</span> 저장 · 백업</div>
+          <p class="hint">현재 상태를 이름별로 여러 개 저장하거나, 백업 파일로 다른 기기에 옮길 수 있습니다.</p>
+
+          <div class="save-row">
+            <div class="field">
+              <label for="presetName">저장 이름</label>
+              <input id="presetName" maxlength="40" placeholder="예: 10월 예상 / 매출 1" />
+            </div>
+            <button class="primary-btn" id="savePreset">현재 상태 저장</button>
+          </div>
+
+          <div class="preset-list" id="presetList"></div>
+
+          <div class="toolbar">
+            <button class="secondary-btn" id="exportBackup">백업 내보내기</button>
+            <button class="secondary-btn" id="importBackup">백업 불러오기</button>
+            <button class="secondary-btn" id="pdfButton">PDF로 저장</button>
+          </div>
+          <input class="file-input" type="file" id="backupFile" accept=".json,application/json" />
+        </section>
+      </div>
+
+      <aside class="result">
+        <div class="result-title">▣ 이번 달 예상 성적표</div>
+
+        <div class="section-label">월 매출</div>
+        <div class="stat-list">
+          <div class="stat"><span>총 시술 건수</span><b id="totalCount">0건</b></div>
+          <div class="stat"><span>재료비</span><b id="materialCost">0원</b></div>
+          <div class="stat"><span>고정비 합계</span><b id="fixedCost">0원</b></div>
+          <div class="stat"><span>총 비용</span><b id="totalCost">0원</b></div>
+        </div>
+
+        <div class="profit">
+          <small>월 순수익</small>
+          <div class="profit-value" id="netProfit">0원</div>
+          <div class="margin">마진율 <b id="margin">-</b></div>
+        </div>
+
+        <div class="mini">
+          <div class="mini-top">
+            <span>손익분기 매출 (BEP)</span>
+            <strong id="bep">0원</strong>
+          </div>
+          <div class="mini-note">현재 고정비와 재료비율 기준의 최소 손익분기 매출입니다.</div>
+        </div>
+
+        <div class="mini">
+          <div class="mini-top">
+            <span>예상 월 매출</span>
+            <strong id="revenue">0원</strong>
+          </div>
+        </div>
+
+        <div class="goal-result" id="goalResult">
+          <div class="section-label">목표 순수익까지</div>
+          <div class="big" id="extraRevenue">추가 매출 0원</div>
+          <div class="mini-note" id="extraProcedures"></div>
+        </div>
+
+        <div class="result-actions">
+          <button class="secondary-btn" id="quickSave">현재 상태 빠른 저장</button>
+          <button class="secondary-btn" id="pdfButtonSide">PDF로 저장</button>
+        </div>
+
+        <div class="footer-note">최근 입력값과 저장본은 이 브라우저에 저장됩니다.</div>
+      </aside>
+    </div>
+  </main>
+
+  <section id="printReport" aria-hidden="true"></section>
+  <div class="toast" id="toast"></div>
+
+  <script>
+    const AUTO_KEY = "profitCalculatorData";
+    const PRESET_KEY = "profitCalculatorPresetsV1";
+    const $ = s => document.querySelector(s);
+    const won = n => Math.round(n || 0).toLocaleString("ko-KR") + "원";
+    const num = v => {
+      const n = Number(String(v ?? "").replace(/[^\d.-]/g,""));
+      return Number.isFinite(n) ? n : 0;
+    };
+
+    let services = [{name:"시술명", price:80000, count:30}];
+    const fields = ["rent","labor","ads","etc","materialRate","goal"];
+
+    function escapeHtml(s){
+      return String(s).replace(/[&<>"']/g, m => ({
+        "&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;","'":"&#039;"
+      }[m]));
+    }
+
+    function showToast(message){
+      const toast = $("#toast");
+      toast.textContent = message;
+      toast.classList.add("show");
+      clearTimeout(window.__toastTimer);
+      window.__toastTimer = setTimeout(()=>toast.classList.remove("show"),2200);
+    }
+
+    function captureState(){
+      return {
+        services: services.map(s=>({
+          name:String(s.name ?? ""),
+          price:num(s.price),
+          count:num(s.count)
+        })),
+        fields:Object.fromEntries(fields.map(id=>[id,$("#"+id)?.value ?? ""]))
+      };
+    }
+
+    function isValidState(state){
+      return !!(
+        state &&
+        Array.isArray(state.services) &&
+        state.services.length &&
+        state.fields &&
+        typeof state.fields === "object"
+      );
+    }
+
+    function applyState(state, saveAfter=true){
+      if(!isValidState(state)) return false;
+      services = state.services.map(s=>({
+        name:String(s.name ?? ""),
+        price:num(s.price),
+        count:num(s.count)
+      }));
+      fields.forEach(id=>{
+        const el = $("#"+id);
+        if(el) el.value = state.fields[id] ?? "";
+      });
+      renderServices();
+      calculate();
+      if(saveAfter) saveAuto();
+      return true;
+    }
+
+    function saveAuto(){
+      try{
+        localStorage.setItem(AUTO_KEY, JSON.stringify(captureState()));
+      }catch(e){
+        showToast("브라우저 저장 공간을 사용할 수 없습니다.");
+      }
+    }
+
+    function loadAuto(){
+      try{
+        const saved = JSON.parse(localStorage.getItem(AUTO_KEY) || "null");
+        if(isValidState(saved)) applyState(saved,false);
+      }catch(e){}
+    }
+
+    function getPresets(){
+      try{
+        const data = JSON.parse(localStorage.getItem(PRESET_KEY) || "[]");
+        return Array.isArray(data) ? data : [];
+      }catch(e){
+        return [];
+      }
+    }
+
+    function setPresets(list){
+      localStorage.setItem(PRESET_KEY, JSON.stringify(list));
+    }
+
+    function uniquePresetName(base, list){
+      let name = (base || "").trim() || `매출 ${list.length + 1}`;
+      if(!list.some(p=>p.name === name)) return name;
+      let i = 2;
+      while(list.some(p=>p.name === `${name} (${i})`)) i++;
+      return `${name} (${i})`;
+    }
+
+    function formatSavedAt(iso){
+      try{
+        return new Intl.DateTimeFormat("ko-KR",{
+          year:"numeric",month:"2-digit",day:"2-digit",
+          hour:"2-digit",minute:"2-digit"
+        }).format(new Date(iso));
+      }catch(e){return ""}
+    }
+
+    function savePreset(name){
+      const list = getPresets();
+      const finalName = uniquePresetName(name,list);
+      list.unshift({
+        id:`p_${Date.now()}_${Math.random().toString(36).slice(2,8)}`,
+        name:finalName,
+        savedAt:new Date().toISOString(),
+        state:captureState()
+      });
+      setPresets(list);
+      renderPresets();
+      $("#presetName").value = "";
+      showToast(`"${finalName}" 저장 완료`);
+    }
+
+    function renderPresets(){
+      const list = getPresets();
+      const box = $("#presetList");
+
+      if(!list.length){
+        box.innerHTML = `<div class="preset-empty">아직 저장된 항목이 없습니다.</div>`;
+        return;
+      }
+
+      box.innerHTML = list.map(p=>`
+        <div class="preset-item" data-id="${escapeHtml(p.id)}">
+          <div class="preset-meta">
+            <div class="preset-name">${escapeHtml(p.name)}</div>
+            <div class="preset-date">${escapeHtml(formatSavedAt(p.savedAt))}</div>
+          </div>
+          <div class="preset-actions">
+            <button class="secondary-btn preset-load">불러오기</button>
+            <button class="danger-btn preset-delete">삭제</button>
+          </div>
+        </div>
+      `).join("");
+
+      box.querySelectorAll(".preset-item").forEach(item=>{
+        const id = item.dataset.id;
+        item.querySelector(".preset-load").addEventListener("click",()=>{
+          const preset = getPresets().find(p=>p.id===id);
+          if(preset && applyState(preset.state,true)){
+            showToast(`"${preset.name}" 불러옴`);
+            window.scrollTo({top:0,behavior:"smooth"});
+          }
+        });
+        item.querySelector(".preset-delete").addEventListener("click",()=>{
+          const list = getPresets();
+          const preset = list.find(p=>p.id===id);
+          if(!preset) return;
+          if(!confirm(`"${preset.name}" 저장본을 삭제할까요?`)) return;
+          setPresets(list.filter(p=>p.id!==id));
+          renderPresets();
+          showToast("저장본을 삭제했습니다.");
+        });
+      });
+    }
+
+    function renderServices(){
+      const box = $("#services");
+      box.innerHTML = services.map((s,i)=>`
+        <div class="service-row" data-i="${i}">
+          <input class="service-name" data-k="name" value="${escapeHtml(s.name)}" placeholder="시술명" />
+          <input data-k="price" inputmode="numeric" value="${s.price || ""}" placeholder="단가" />
+          <input data-k="count" inputmode="numeric" value="${s.count || ""}" placeholder="건수" />
+          <button class="remove" aria-label="삭제" title="삭제">×</button>
+        </div>
+      `).join("");
+
+      box.querySelectorAll(".service-row").forEach(row=>{
+        const i = Number(row.dataset.i);
+        row.querySelectorAll("input").forEach(inp=>{
+          inp.addEventListener("input",()=>{
+            const k = inp.dataset.k;
+            services[i][k] = k === "name" ? inp.value : num(inp.value);
+            saveAuto();
+            calculate();
+          });
+        });
+        row.querySelector(".remove").addEventListener("click",()=>{
+          if(services.length === 1){
+            services[0] = {name:"",price:0,count:0};
+          }else{
+            services.splice(i,1);
+          }
+          renderServices();
+          saveAuto();
+          calculate();
+        });
+      });
+    }
+
+    function getMetrics(){
+      const revenue = services.reduce((a,s)=>a + num(s.price)*num(s.count),0);
+      const count = services.reduce((a,s)=>a + num(s.count),0);
+      const rent = num($("#rent").value);
+      const labor = num($("#labor").value);
+      const ads = num($("#ads").value);
+      const etc = num($("#etc").value);
+      const materialRate = Math.min(Math.max(num($("#materialRate").value),0),99.9);
+      const material = revenue * materialRate / 100;
+      const fixed = rent + labor + ads + etc;
+      const total = fixed + material;
+      const profit = revenue - total;
+      const margin = revenue > 0 ? profit / revenue * 100 : null;
+      const bep = fixed / Math.max(1 - materialRate/100, .001);
+      const goal = num($("#goal").value);
+      const requiredRevenue = goal > 0 ? (goal + fixed) / Math.max(1-materialRate/100,.001) : 0;
+      const extra = goal > 0 ? Math.max(requiredRevenue-revenue,0) : 0;
+      const avgPrice = count > 0 ? revenue/count : 0;
+      return {revenue,count,rent,labor,ads,etc,materialRate,material,fixed,total,profit,margin,bep,goal,extra,avgPrice};
+    }
+
+    function calculate(){
+      const m = getMetrics();
+
+      $("#totalCount").textContent = Math.round(m.count).toLocaleString("ko-KR")+"건";
+      $("#materialCost").textContent = won(m.material);
+      $("#fixedCost").textContent = won(m.fixed);
+      $("#totalCost").textContent = won(m.total);
+      $("#netProfit").textContent = won(m.profit);
+      $("#margin").textContent = m.margin === null ? "-" : m.margin.toFixed(1)+"%";
+      $("#bep").textContent = won(m.bep);
+      $("#revenue").textContent = won(m.revenue);
+      $("#netProfit").style.color = m.profit >= 0 ? "var(--mint)" : "var(--danger)";
+
+      if(m.goal > 0){
+        $("#goalResult").classList.add("show");
+        $("#extraRevenue").textContent = m.extra > 0 ? "추가 매출 "+won(m.extra) : "현재 조건에서 목표 달성";
+        $("#extraProcedures").textContent = m.extra > 0 && m.avgPrice > 0
+          ? `현재 평균 단가 기준 약 ${Math.ceil(m.extra/m.avgPrice).toLocaleString("ko-KR")}건의 추가 시술이 필요합니다.`
+          : (m.extra <= 0 ? "현재 예상 순수익이 입력한 목표 이상입니다." : "시술 단가와 건수를 입력하면 추가 건수도 계산됩니다.");
+      }else{
+        $("#goalResult").classList.remove("show");
+      }
+    }
+
+    function downloadBackup(){
+      const payload = {
+        type:"profit-calculator-backup",
+        version:1,
+        exportedAt:new Date().toISOString(),
+        current:captureState(),
+        presets:getPresets()
+      };
+      const blob = new Blob([JSON.stringify(payload,null,2)],{type:"application/json;charset=utf-8"});
+      const url = URL.createObjectURL(blob);
+      const a = document.createElement("a");
+      const d = new Date();
+      const stamp = `${d.getFullYear()}-${String(d.getMonth()+1).padStart(2,"0")}-${String(d.getDate()).padStart(2,"0")}`;
+      a.href = url;
+      a.download = `profit-calculator-backup-${stamp}.json`;
+      document.body.appendChild(a);
+      a.click();
+      a.remove();
+      setTimeout(()=>URL.revokeObjectURL(url),1000);
+      showToast("백업 파일을 저장했습니다.");
+    }
+
+    async function importBackup(file){
+      try{
+        const raw = await file.text();
+        const data = JSON.parse(raw);
+
+        let current = null;
+        let presets = [];
+
+        if(data?.type === "profit-calculator-backup"){
+          current = data.current;
+          presets = Array.isArray(data.presets) ? data.presets : [];
+        }else if(isValidState(data)){
+          current = data;
+        }else{
+          throw new Error("invalid");
+        }
+
+        if(current && !isValidState(current)) throw new Error("invalid");
+        if(!confirm("현재 브라우저의 저장본을 백업 파일 내용으로 바꿀까요?")) return;
+
+        const cleanPresets = presets.filter(p=>p && p.id && p.name && isValidState(p.state));
+        setPresets(cleanPresets);
+
+        if(current){
+          applyState(current,true);
+        }
+        renderPresets();
+        showToast("백업을 불러왔습니다.");
+      }catch(e){
+        alert("올바른 백업 JSON 파일이 아닙니다.");
+      }finally{
+        $("#backupFile").value = "";
+      }
+    }
+
+    function preparePrintReport(){
+      const m = getMetrics();
+      const now = new Intl.DateTimeFormat("ko-KR",{
+        year:"numeric",month:"2-digit",day:"2-digit",
+        hour:"2-digit",minute:"2-digit"
+      }).format(new Date());
+
+      const serviceRows = services.map(s=>`
+        <tr>
+          <td>${escapeHtml(s.name || "이름 없음")}</td>
+          <td>${won(num(s.price))}</td>
+          <td>${Math.round(num(s.count)).toLocaleString("ko-KR")}건</td>
+          <td>${won(num(s.price)*num(s.count))}</td>
+        </tr>
+      `).join("");
+
+      const goalText = m.goal > 0
+        ? (m.extra > 0 ? `목표 ${won(m.goal)}까지 추가 매출 ${won(m.extra)} 필요` : `목표 순수익 ${won(m.goal)} 달성 상태`)
+        : "목표 순수익 미입력";
+
+      $("#printReport").innerHTML = `
+        <div class="print-head">
+          <div>
+            <h1 class="print-title">월 매출 · 순수익 계산 결과</h1>
+          </div>
+          <div class="print-date">출력: ${escapeHtml(now)}</div>
+        </div>
+
+        <div class="print-section">
+          <h2>시술 메뉴</h2>
+          <table class="print-table">
+            <thead><tr><th>시술명</th><th>단가</th><th>월 건수</th><th>예상 매출</th></tr></thead>
+            <tbody>${serviceRows}</tbody>
+          </table>
+        </div>
+
+        <div class="print-section">
+          <h2>비용 입력</h2>
+          <table class="print-table">
+            <tbody>
+              <tr><th>임대료 + 관리비</th><td>${won(m.rent)}</td><th>인건비</th><td>${won(m.labor)}</td></tr>
+              <tr><th>광고 · 마케팅비</th><td>${won(m.ads)}</td><th>기타 고정비</th><td>${won(m.etc)}</td></tr>
+              <tr><th>재료비 비율</th><td>${m.materialRate.toFixed(1)}%</td><th>목표 순수익</th><td>${m.goal>0?won(m.goal):"-"}</td></tr>
+            </tbody>
+          </table>
+        </div>
+
+        <div class="print-section">
+          <h2>예상 결과</h2>
+          <div class="print-summary">
+            <div class="print-box"><span>예상 월 매출</span><strong>${won(m.revenue)}</strong></div>
+            <div class="print-box"><span>총 시술 건수</span><strong>${Math.round(m.count).toLocaleString("ko-KR")}건</strong></div>
+            <div class="print-box"><span>재료비</span><strong>${won(m.material)}</strong></div>
+            <div class="print-box"><span>고정비 합계</span><strong>${won(m.fixed)}</strong></div>
+            <div class="print-box"><span>총 비용</span><strong>${won(m.total)}</strong></div>
+            <div class="print-box print-profit"><span>월 순수익</span><strong>${won(m.profit)}</strong></div>
+            <div class="print-box"><span>마진율</span><strong>${m.margin===null?"-":m.margin.toFixed(1)+"%"}</strong></div>
+            <div class="print-box"><span>손익분기 매출</span><strong>${won(m.bep)}</strong></div>
+          </div>
+        </div>
+
+        <div class="print-section">
+          <h2>목표 분석</h2>
+          <div class="print-box"><strong>${escapeHtml(goalText)}</strong></div>
+        </div>
+
+        <div class="print-foot">이 문서는 브라우저의 PDF 저장 기능으로 생성된 계산 결과입니다.</div>
+      `;
+    }
+
+    function savePdf(){
+      preparePrintReport();
+      setTimeout(()=>{
+        if(typeof window.print === "function"){
+          window.print();
+        }else{
+          alert("이 브라우저에서는 인쇄/PDF 기능을 지원하지 않습니다.");
+        }
+      },50);
+    }
+
+    $("#addService").addEventListener("click",()=>{
+      services.push({name:"",price:0,count:0});
+      renderServices();
+      saveAuto();
+      setTimeout(()=>{
+        const rows = document.querySelectorAll(".service-row");
+        rows[rows.length-1]?.querySelector(".service-name")?.focus();
+      },0);
+    });
+
+    fields.forEach(id=>{
+      $("#"+id)?.addEventListener("input",()=>{saveAuto();calculate();});
+    });
+
+    $("#goalButton").addEventListener("click",()=>{
+      calculate();
+      $("#goalResult").classList.toggle("show", num($("#goal").value)>0);
+    });
+
+    $("#savePreset").addEventListener("click",()=>savePreset($("#presetName").value));
+    $("#presetName").addEventListener("keydown",e=>{
+      if(e.key==="Enter") savePreset($("#presetName").value);
+    });
+
+    $("#quickSave").addEventListener("click",()=>{
+      const d = new Date();
+      savePreset(`${d.getMonth()+1}월 ${d.getDate()}일 저장`);
+    });
+
+    $("#exportBackup").addEventListener("click",downloadBackup);
+    $("#importBackup").addEventListener("click",()=>$("#backupFile").click());
+    $("#backupFile").addEventListener("change",e=>{
+      const file = e.target.files?.[0];
+      if(file) importBackup(file);
+    });
+
+    $("#pdfButton").addEventListener("click",savePdf);
+    $("#pdfButtonSide").addEventListener("click",savePdf);
+    window.addEventListener("beforeprint",preparePrintReport);
+
+    loadAuto();
+    renderServices();
+    renderPresets();
+    calculate();
+  </script>
+</body>
+</html>
